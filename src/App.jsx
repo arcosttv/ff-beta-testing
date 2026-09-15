@@ -199,7 +199,11 @@ export function App() {
     setTasks(freshTasks);
 
     if (created.assigned_to) {
-      sendDiscordWebhookNotification({ eventType: 'TASK_CREATED', task: created, user: activeCharacter });
+      const taskForWebhook = {
+        ...created,
+        assigned_discord_id: newTaskData.assigned_to ? (newTaskData.assigned_discord_id || '') : ''
+      };
+      sendDiscordWebhookNotification({ eventType: 'TASK_CREATED', task: taskForWebhook, user: activeCharacter });
     }
 
     return created;
