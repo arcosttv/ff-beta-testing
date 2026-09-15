@@ -31,7 +31,7 @@ export async function fetchDiscordGuildRole(providerToken, discordUser) {
     if (res.ok) {
       const member = await res.json();
       const roles = member.roles || [];
-      console.log('Discord Member Roles for', handle, ':', roles); // For easy debugging
+      console.warn('Discord Member Roles for', handle, ':', roles); // For easy debugging
 
       if (roles.includes(OFFICER_ROLE_ID)) {
         return 'Officer';
