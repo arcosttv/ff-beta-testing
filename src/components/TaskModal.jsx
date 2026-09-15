@@ -94,11 +94,11 @@ export function TaskModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/80"
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-3xl h-[85vh] max-h-[800px] bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl flex flex-col overflow-hidden font-sans relative z-10"
+        className="w-full max-w-3xl h-[85vh] max-h-[800px] bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl flex flex-col overflow-hidden font-sans relative z-[10000]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar */}

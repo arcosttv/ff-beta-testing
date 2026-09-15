@@ -32,7 +32,7 @@ export function AuthGateModal({ onAuthenticate }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090c10]/95 backdrop-blur-md">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#090c10]/95">
       <div className="w-full max-w-md bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
         
         {/* Banner Header */}

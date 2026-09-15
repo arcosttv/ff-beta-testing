@@ -64,7 +64,7 @@ Sanguine Puddle Healing,Verify 5% HP per sec,Dungeon,Normal`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090c10]/85 backdrop-blur-sm animate-fade-in font-sans">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#090c10]/85 animate-fade-in font-sans">
       <div 
         className="w-full max-w-xl bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
