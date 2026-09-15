@@ -93,9 +93,12 @@ export function TaskModal({
   ).filter(b => b && typeof b === 'object');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#090c10]/85 backdrop-blur-sm animate-fade-in overflow-y-auto">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div 
-        className="w-full max-w-3xl bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl overflow-hidden my-auto max-h-[90vh] flex flex-col font-sans"
+        className="w-full max-w-3xl h-[85vh] max-h-[800px] bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl flex flex-col overflow-hidden font-sans relative z-10"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar */}
