@@ -157,6 +157,47 @@ export async function recordDiscordLogin(userProfile) {
   }
 }
 
+export async function fetchGuildTesters() {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data } = await supabase
+        .from('discord_logins')
+        .select('discord_username, discord_id')
+        .not('discord_id', 'eq', '')
+        .order('logged_in_at', { ascending: false });
+
+      if (data && data.length > 0) {
+        const unique = [];
+        const seen = new Set();
+        for (const item of data) {
+          const name = item.discord_username;
+          if (name && !seen.has(name.toLowerCase())) {
+            seen.add(name.toLowerCase());
+            unique.push({ displayName: name, discordId: item.discord_id });
+          }
+        }
+        return unique;
+      }
+    } catch (err) {}
+  }
+  
+  try {
+    const logs = JSON.parse(localStorage.getItem(LOCAL_DISCORD_LOGINS_KEY) || '[]');
+    const unique = [];
+    const seen = new Set();
+    for (const item of logs) {
+      const name = item.discord_username;
+      if (name && !seen.has(name.toLowerCase())) {
+        seen.add(name.toLowerCase());
+        unique.push({ displayName: name, discordId: item.discord_id });
+      }
+    }
+    return unique;
+  } catch (e) {
+    return [];
+  }
+}
+
 export async function fetchTasks() {
   if (isSupabaseConfigured && supabase) {
     try {

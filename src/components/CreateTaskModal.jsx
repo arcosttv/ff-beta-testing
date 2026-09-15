@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
-import { X, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Plus, User } from 'lucide-react';
+import { fetchGuildTesters } from '../lib/supabase';
 
-export function CreateTaskModal({ activeCharacter, onClose, onCreateTask }) {
+export function CreateTaskModal({ activeCharacter, onClose, onCreateTask, user }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Quest Route');
   const [priority, setPriority] = useState('Normal');
   const [assignedTo, setAssignedTo] = useState(activeCharacter || '');
+  const [assignedDiscordId, setAssignedDiscordId] = useState(user?.discordId || '');
+  const [testers, setTesters] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function loadTesters() {
+      const list = await fetchGuildTesters();
+      setTesters(list);
+    }
+    loadTesters();
+  }, []);
 
   const categories = [
     'Quest Route',
@@ -19,6 +30,23 @@ export function CreateTaskModal({ activeCharacter, onClose, onCreateTask }) {
     'General'
   ];
   const priorities = ['Urgent', 'High', 'Normal', 'Low'];
+
+  const handleSelectTester = (e) => {
+    const selectedValue = e.target.value;
+    setAssignedTo(selectedValue);
+    
+    // Find matching numeric Discord ID from registered testers
+    const found = testers.find(t => t.displayName.toLowerCase() === selectedValue.toLowerCase());
+    if (found) {
+      setAssignedDiscordId(found.discordId || '');
+    } else if (user && user.displayName?.toLowerCase() === selectedValue.toLowerCase()) {
+      setAssignedDiscordId(user.discordId || '');
+    } else if (/^\d+$/.test(selectedValue.replace(/[<@!&>]/g, ''))) {
+      setAssignedDiscordId(selectedValue.replace(/[<@!&>]/g, ''));
+    } else {
+      setAssignedDiscordId('');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +60,7 @@ export function CreateTaskModal({ activeCharacter, onClose, onCreateTask }) {
         category,
         priority,
         assigned_to: assignedTo.trim(),
+        assigned_discord_id: assignedDiscordId || (user?.discordId || ''),
         created_by: activeCharacter || 'Tester'
       });
       onClose();
@@ -124,16 +153,32 @@ export function CreateTaskModal({ activeCharacter, onClose, onCreateTask }) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-              Assigned Tester (Optional)
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Assigned Tester (Optional)
+              </label>
+              {assignedDiscordId && (
+                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                  ✓ Discord ID Linked (<code className="text-emerald-300">{assignedDiscordId}</code>)
+                </span>
+              )}
+            </div>
             <input
               type="text"
-              placeholder="Leave blank or type character name..."
+              list="tester-suggestions"
+              placeholder="Select guild member or type character name..."
               value={assignedTo}
-              onChange={(e) => setAssignedTo(e.target.value)}
+              onChange={handleSelectTester}
               className="w-full px-3.5 py-2 bg-[#0d1117] border border-[#30363d] rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
+            <datalist id="tester-suggestions">
+              {activeCharacter && <option value={activeCharacter}>{activeCharacter} (Me)</option>}
+              {testers.map((t) => (
+                <option key={t.displayName} value={t.displayName}>
+                  {t.displayName} ({t.discordId})
+                </option>
+              ))}
+            </datalist>
           </div>
 
           <div>

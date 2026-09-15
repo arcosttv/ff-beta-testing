@@ -316,6 +316,7 @@ export function App() {
       {isCreateModalOpen && (
         <CreateTaskModal
           activeCharacter={activeCharacter}
+          user={user}
           onClose={() => setIsCreateModalOpen(false)}
           onCreateTask={handleCreateTask}
         />
