@@ -7,8 +7,8 @@ export function CreateTaskModal({ activeCharacter, onClose, onCreateTask, user }
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Quest Route');
   const [priority, setPriority] = useState('Normal');
-  const [assignedTo, setAssignedTo] = useState(activeCharacter || '');
-  const [assignedDiscordId, setAssignedDiscordId] = useState(user?.discordId || '');
+  const [assignedTo, setAssignedTo] = useState('');
+  const [assignedDiscordId, setAssignedDiscordId] = useState('');
   const [testers, setTesters] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

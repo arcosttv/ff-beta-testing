@@ -136,10 +136,9 @@ export async function recordDiscordLogin(userProfile) {
 
   const record = {
     discord_username: userProfile.displayName || userProfile.username,
-    discord_handle: userProfile.username || '',
     discord_id: userProfile.discordId || '',
     avatar_url: userProfile.avatarUrl || '',
-    role: userProfile.role || 'Trial',
+    email: userProfile.email || '',
     logged_in_at: new Date().toISOString()
   };
 
