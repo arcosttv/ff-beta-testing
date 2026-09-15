@@ -70,7 +70,7 @@ export function App() {
 
   const activeCharacter = user ? (user.displayName || user.username) : 'Tester';
 
-  // Listen for Supabase OAuth callback and fetch real Discord API roles
+  // Listen for Supabase OAuth callback and fetch real Discord User ID
   useEffect(() => {
     if (!supabase) return;
 
@@ -81,12 +81,15 @@ export function App() {
         const displayName = meta.custom_claims?.global_name || meta.full_name || meta.name || session.user.email?.split('@')[0] || 'Discord Tester';
         const accountHandle = meta.name || meta.user_name || session.user.email?.split('@')[0] || displayName;
         
+        // Extract real numeric Discord User ID from identities or provider ID
+        const realDiscordId = session.user.identities?.[0]?.id || session.user.user_metadata?.sub || session.user.id || '';
+
         const detectedRole = await fetchDiscordGuildRole(session.provider_token, session.user);
 
         const authUser = {
           displayName,
           username: accountHandle.startsWith('@') ? accountHandle : `@${accountHandle}`,
-          discordId: session.user.id || `discord_${Date.now()}`,
+          discordId: realDiscordId,
           avatarUrl: meta.avatar_url || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(displayName)}`,
           email: session.user.email || '',
           role: detectedRole,
@@ -148,13 +151,12 @@ export function App() {
   const handleCreateTask = async (newTaskData) => {
     const created = await createTask({
       ...newTaskData,
-      assigned_discord_id: user?.discordId || '',
+      assigned_discord_id: newTaskData.assigned_to ? (user?.discordId || '') : '',
       created_by: activeCharacter
     });
     const freshTasks = await fetchTasks();
     setTasks(freshTasks);
 
-    // Trigger Webhook ONLY if assigned to a user during creation
     if (created.assigned_to) {
       sendDiscordWebhookNotification({ eventType: 'TASK_CREATED', task: created, user: activeCharacter });
     }
@@ -185,7 +187,6 @@ export function App() {
       setSelectedTask(updated);
     }
 
-    // Trigger Task Failed Webhook (NO PING)
     if (updates.status === 'Failed') {
       sendDiscordWebhookNotification({ eventType: 'TASK_FAILED', task: updated, user: activeCharacter });
     } else if (updates.status === 'Result') {
@@ -330,7 +331,7 @@ export function App() {
 
       {/* Footer */}
       <footer className="border-t border-[#21262d] bg-[#090c10] py-4 px-6 text-center text-xs text-slate-500 font-sans">
-        <p>FF - Beta Testing &bull; New Task Pings Active &bull; Failed Tasks Webhook (No Ping) Active</p>
+        <p>FF - Beta Testing &bull; Discord Real Numeric ID Pings & Allowed Mentions Active</p>
       </footer>
     </div>
   );

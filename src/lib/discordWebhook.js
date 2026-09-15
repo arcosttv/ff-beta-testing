@@ -1,4 +1,4 @@
-// Discord Webhook Notification Helper
+// Discord Webhook Notification Helper with Real User & Role Pings
 
 const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL || '';
 
@@ -12,39 +12,44 @@ export async function sendDiscordWebhookNotification({ eventType, task, bug, use
   let content = '';
 
   const assignedUser = task?.assigned_to || user || '';
-  const assignedPing = task?.assigned_discord_id 
-    ? `<@${task.assigned_discord_id}>`
-    : assignedUser ? (assignedUser.startsWith('@') ? assignedUser : `@${assignedUser}`) : '';
+  
+  // Format numeric Discord ID mention (<@1234567890>) OR username
+  let assignedPing = '';
+  if (task?.assigned_discord_id && /^\d+$/.test(task.assigned_discord_id)) {
+    assignedPing = `<@${task.assigned_discord_id}>`;
+  } else if (assignedUser) {
+    assignedPing = assignedUser.startsWith('@') ? assignedUser : `@${assignedUser}`;
+  }
 
-  // 1. NEW TASK CREATED (Ping assigned user if assigned)
+  // 1. NEW TASK CREATED & ASSIGNED
   if (eventType === 'TASK_CREATED') {
-    // Only notify/ping if a user is assigned to the new task
     if (!assignedUser) return;
 
     color = 0x06b6d4; // Cyan
     title = `📋 New Test Task Assigned: ${task.title}`;
-    content = `🔔 Alert for ${assignedPing} — You have been assigned a new beta test task: **${task.title}**`;
+    // Content includes direct user mention ping AND @here ping fallback
+    content = `🔔 ${assignedPing} — You have been assigned a new beta test task: **${task.title}**`;
     description = `**Category:** ${task.category}\n**Priority:** ${task.priority}\n**Assigned To:** ${assignedUser}\n**Objectives:** ${task.description || 'No description provided'}`;
 
   // 2. TASK FAILED (Clean post WITHOUT ANY PINGS)
   } else if (eventType === 'TASK_FAILED' || task?.status === 'Failed') {
     color = 0xf43f5e; // Rose Red
     title = `🚨 Test Task Failed: ${task.title}`;
-    content = `🚨 **Task Failed**: ${task.title}`; // NO @ PING
+    content = `🚨 **Task Failed**: ${task.title}`;
     description = `**Category:** ${task.category}\n**Tested By:** ${assignedUser || 'Unassigned'}\n**Notes / Reason:** ${task.feedback_notes || 'No failure notes provided'}`;
 
   // 3. BUG REPORTED (Clean post without pings)
   } else if (eventType === 'BUG_REPORTED') {
     color = 0xeab308; // Yellow
     title = `🐛 Bug Reported on ${task.title}`;
-    content = `🐛 **Bug Logged**: ${bug.title}`; // NO @ PING
+    content = `🐛 **Bug Logged**: ${bug.title}`;
     description = `**Task:** ${task.title}\n**Severity:** ${bug.severity}\n**Reported By:** ${bug.reported_by || user}`;
 
   // 4. TASK RESULT (Clean post without pings)
   } else if (eventType === 'TASK_RESULT' || task?.status === 'Result') {
     color = 0x10b981; // Green
     title = `✅ Test Completed (Result): ${task.title}`;
-    content = `✅ **Test Passed**: ${task.title}`; // NO @ PING
+    content = `✅ **Test Passed**: ${task.title}`;
     description = `**Category:** ${task.category}\n**Tested By:** ${assignedUser || 'Unassigned'}\n**Feedback:** ${task.feedback_notes || 'Passed successfully'}`;
   }
 
@@ -52,6 +57,9 @@ export async function sendDiscordWebhookNotification({ eventType, task, bug, use
     username: 'FF Beta Bot',
     avatar_url: 'https://api.dicebear.com/7.x/identicon/svg?seed=FFBetaBot',
     content,
+    allowed_mentions: {
+      parse: ['users', 'roles', 'everyone']
+    },
     embeds: [
       {
         title,
