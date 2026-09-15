@@ -20,7 +20,8 @@ import {
   subscribeToTasks,
   supabase,
   recordDiscordLogin,
-  hasTrialOrAboveRole
+  hasTrialOrAboveRole,
+  isOfficer
 } from './lib/supabase';
 
 class ErrorBoundary extends React.Component {
