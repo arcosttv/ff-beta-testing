@@ -169,13 +169,15 @@ export function Navbar({
 
                 <button
                   type="button"
-                  onClick={onToggleOfficerRole}
-                  className={`px-1.5 py-0.2 rounded text-[10px] font-bold cursor-pointer transition-all hover:scale-105 ${
+                  onClick={user.realRole === 'Officer' ? onToggleOfficerRole : undefined}
+                  className={`px-1.5 py-0.2 rounded text-[10px] font-bold transition-all ${
+                    user.realRole === 'Officer' ? 'cursor-pointer hover:scale-105' : 'cursor-default'
+                  } ${
                     userIsOfficer 
                       ? 'bg-amber-950/80 text-amber-300 border border-amber-800/60 shadow-sm'
                       : 'bg-indigo-950/80 text-indigo-300 border border-indigo-800/60'
                   }`}
-                  title="Click to toggle Officer / Tester role permissions"
+                  title={user.realRole === 'Officer' ? "Click to toggle Officer / Tester role permissions" : "Your Discord Role"}
                 >
                   {user.role || 'Trial'}
                 </button>

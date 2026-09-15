@@ -25,8 +25,7 @@ export function isOfficer(user) {
 
 export function hasTrialOrAboveRole(user) {
   if (!user) return false;
-  const role = (user.role || 'Trial').toLowerCase();
-  return ['trial', 'raider', 'officer', 'admin', 'officer/admin', 'guild master'].includes(role);
+  return user.role === 'Officer' || user.role === 'Trial';
 }
 
 // Initial Demo Tasks
@@ -122,7 +121,7 @@ export async function signInWithDiscord() {
       provider: 'discord',
       options: {
         redirectTo: window.location.origin,
-        scopes: 'identify email guilds'
+        scopes: 'identify email guilds guilds.members.read'
       }
     });
     if (error) throw error;

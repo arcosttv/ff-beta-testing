@@ -134,6 +134,7 @@ export function App() {
           avatarUrl: meta.avatar_url || `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(displayName)}`,
           email: session.user.email || '',
           role: detectedRole,
+          realRole: detectedRole,
           isOfficer: detectedRole === 'Officer',
           verifiedAt: new Date().toISOString()
         };
