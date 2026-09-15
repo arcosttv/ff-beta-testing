@@ -92,15 +92,43 @@ export function TaskModal({
     : []
   ).filter(b => b && typeof b === 'object');
 
-  return (
-    <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/80"
-      onClick={onClose}
-    >
+  try {
+    return (
       <div 
-        className="w-full max-w-3xl h-[85vh] max-h-[800px] bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl flex flex-col overflow-hidden font-sans relative z-[10000]"
-        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px'
+        }}
+        onClick={onClose}
       >
+        <div 
+          style={{
+            backgroundColor: '#161b22',
+            border: '1px solid #30363d',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '768px',
+            height: '85vh',
+            maxHeight: '800px',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            position: 'relative',
+            zIndex: 100000,
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+          }}
+          className="font-sans"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header Bar */}
         <div className="p-5 border-b border-[#21262d] flex items-start justify-between gap-4 bg-[#0d1117]">
           <div>
@@ -408,4 +436,56 @@ export function TaskModal({
       </div>
     </div>
   );
+  } catch (err) {
+    console.error('Error in TaskModal:', err);
+    return (
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px'
+        }}
+        onClick={onClose}
+      >
+        <div 
+          style={{
+            backgroundColor: '#161b22',
+            border: '1px solid #f43f5e',
+            borderRadius: '16px',
+            padding: '24px',
+            color: '#ffffff',
+            maxWidth: '480px',
+            width: '100%',
+            fontFamily: 'sans-serif',
+            zIndex: 100000
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#f43f5e', marginBottom: '8px' }}>
+            Task Details Render Error
+          </h3>
+          <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '12px' }}>
+            An unexpected error occurred while displaying this task.
+          </p>
+          <pre style={{ fontSize: '11px', background: '#0d1117', padding: '12px', borderRadius: '8px', color: '#fb7185', overflowX: 'auto', marginBottom: '16px' }}>
+            {String(err?.stack || err)}
+          </pre>
+          <button 
+            onClick={onClose}
+            style={{ padding: '8px 16px', backgroundColor: '#30363d', color: '#ffffff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+          >
+            Close Dialog
+          </button>
+        </div>
+      </div>
+    );
+  }
 }
