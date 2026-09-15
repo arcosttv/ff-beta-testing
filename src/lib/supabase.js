@@ -122,7 +122,7 @@ export async function signInWithDiscord() {
       provider: 'discord',
       options: {
         redirectTo: window.location.origin,
-        scopes: 'identify email'
+        scopes: 'identify email guilds'
       }
     });
     if (error) throw error;
