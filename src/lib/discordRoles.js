@@ -3,6 +3,15 @@
 const OFFICERS_KEY = 'ff_officers_list';
 
 export async function fetchDiscordGuildRole(providerToken, discordUser) {
+  const OFFICERS_KEY = 'ff_officers_list';
+  const savedOfficers = JSON.parse(localStorage.getItem(OFFICERS_KEY) || '[]');
+  const handle = (discordUser?.name || discordUser?.username || '').toLowerCase();
+  const id = (discordUser?.id || '').toLowerCase();
+
+  if (savedOfficers.some(o => o.toLowerCase() === handle || o.toLowerCase() === id)) {
+    return 'Officer';
+  }
+
   if (!providerToken) {
     return 'Unauthorized';
   }
@@ -22,6 +31,7 @@ export async function fetchDiscordGuildRole(providerToken, discordUser) {
     if (res.ok) {
       const member = await res.json();
       const roles = member.roles || [];
+      console.log('Discord Member Roles for', handle, ':', roles); // For easy debugging
 
       if (roles.includes(OFFICER_ROLE_ID)) {
         return 'Officer';
