@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Lock, ShieldCheck, ArrowRight, AlertCircle, ShieldAlert } from 'lucide-react';
 import { signInWithDiscord, hasTrialOrAboveRole } from '../lib/supabase';
 
-export function AuthGateModal({ onAuthenticate }) {
-  const [step, setStep] = useState('password'); // 'password' | 'discord'
+export function AuthGateModal({ onAuthenticate, authErrorMsg }) {
+  const [step, setStep] = useState(authErrorMsg ? 'discord' : 'password'); // 'password' | 'discord'
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -32,7 +32,7 @@ export function AuthGateModal({ onAuthenticate }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#090c10]/95">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#090c10]">
       <div className="w-full max-w-md bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
         
         {/* Banner Header */}
@@ -96,10 +96,10 @@ export function AuthGateModal({ onAuthenticate }) {
         {step === 'discord' && (
           <div className="space-y-4">
             
-            {roleError && (
-              <div className="p-3 bg-rose-950/60 border border-rose-800/60 rounded-xl text-xs text-rose-300 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                <span>{roleError}</span>
+            {(roleError || authErrorMsg) && (
+              <div className="p-4 bg-rose-950/60 border border-rose-800/80 rounded-xl text-sm text-rose-300 flex items-start gap-3 shadow-sm">
+                <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                <span className="leading-snug font-medium">{roleError || authErrorMsg}</span>
               </div>
             )}
 

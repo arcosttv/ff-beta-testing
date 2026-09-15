@@ -75,6 +75,7 @@ export function App() {
   });
 
   const [tasks, setTasks] = useState([]);
+  const [authErrorMsg, setAuthErrorMsg] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTask, setSelectedTask] = useState(null);
@@ -143,7 +144,7 @@ export function App() {
           handleAuthenticate(authUser);
           await recordDiscordLogin(authUser);
         } else {
-          alert('Access Restricted: You must hold the Trial role or above in our Discord server to access beta testing.');
+          setAuthErrorMsg('Access Restricted: You must hold the Trial role or above in our Discord server to access beta testing.');
           await supabase.auth.signOut();
         }
       }
@@ -297,7 +298,7 @@ export function App() {
         
         {/* Password & Discord Gate Modal */}
         {!user && (
-          <AuthGateModal onAuthenticate={handleAuthenticate} />
+          <AuthGateModal onAuthenticate={handleAuthenticate} authErrorMsg={authErrorMsg} />
         )}
 
         {/* Connection Notice */}
