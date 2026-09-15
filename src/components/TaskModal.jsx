@@ -140,9 +140,17 @@ export function TaskModal({
                 Priority: {task?.priority || 'Normal'}
               </span>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-100">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-100 mb-1.5">
               {task?.title || 'Untitled Task'}
             </h2>
+            {task?.created_by && (
+              <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded-full bg-[#21262d] border border-[#30363d] flex items-center justify-center text-[9px] font-bold text-indigo-400">
+                  {task.created_by.charAt(0).toUpperCase()}
+                </span>
+                Created by <strong className="text-slate-300 font-medium">{task.created_by}</strong>
+              </p>
+            )}
           </div>
 
           <button
