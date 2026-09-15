@@ -82,6 +82,12 @@ export function TaskModal({
     return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
   };
 
+  const bugsList = Array.isArray(task?.bugs)
+    ? task.bugs
+    : typeof task?.bugs === 'string'
+    ? (() => { try { return JSON.parse(task.bugs); } catch(e) { return []; } })()
+    : [];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#090c10]/85 backdrop-blur-sm animate-fade-in overflow-y-auto">
       <div 
@@ -242,7 +248,7 @@ export function TaskModal({
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-semibold text-rose-400 uppercase tracking-wider flex items-center gap-2">
                 <Bug className="w-4 h-4 text-rose-400" />
-                Recorded Bugs ({(task.bugs || []).length})
+                Recorded Bugs ({bugsList.length})
               </h4>
               <button
                 type="button"
@@ -297,13 +303,13 @@ export function TaskModal({
               </form>
             )}
 
-            {(task.bugs || []).length === 0 ? (
+            {bugsList.length === 0 ? (
               <p className="text-xs text-slate-500 italic text-center py-2">
                 No bugs recorded for this test task yet.
               </p>
             ) : (
               <div className="space-y-2">
-                {task.bugs.map((b) => (
+                {bugsList.map((b) => (
                   <div
                     key={b.id}
                     className={`p-2.5 rounded-lg border flex items-center justify-between gap-3 text-xs transition-colors ${

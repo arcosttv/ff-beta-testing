@@ -209,7 +209,21 @@ export async function fetchTasks() {
       if (error) {
         return getLocalTasks();
       }
-      return data || [];
+      return (data || []).map(t => {
+        let normalizedBugs = [];
+        if (Array.isArray(t.bugs)) {
+          normalizedBugs = t.bugs;
+        } else if (typeof t.bugs === 'string' && t.bugs.trim()) {
+          try {
+            const parsed = JSON.parse(t.bugs);
+            if (Array.isArray(parsed)) normalizedBugs = parsed;
+          } catch (e) {}
+        }
+        return {
+          ...t,
+          bugs: normalizedBugs
+        };
+      });
     } catch (err) {
       return getLocalTasks();
     }
