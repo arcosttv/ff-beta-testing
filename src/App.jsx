@@ -192,7 +192,7 @@ export function App() {
   const handleCreateTask = async (newTaskData) => {
     const created = await createTask({
       ...newTaskData,
-      assigned_discord_id: newTaskData.assigned_to ? (user?.discordId || '') : '',
+      assigned_discord_id: newTaskData.assigned_to ? (newTaskData.assigned_discord_id || '') : '',
       created_by: activeCharacter
     });
     const freshTasks = await fetchTasks();
