@@ -10,6 +10,7 @@ export function CreateTaskModal({ activeCharacter, onClose, onCreateTask, user }
   const [assignedTo, setAssignedTo] = useState(activeCharacter || '');
   const [assignedDiscordId, setAssignedDiscordId] = useState(user?.discordId || '');
   const [testers, setTesters] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -19,6 +20,11 @@ export function CreateTaskModal({ activeCharacter, onClose, onCreateTask, user }
     }
     loadTesters();
   }, []);
+
+  const filteredTesters = testers.filter(t => 
+    t.displayName.toLowerCase().includes((assignedTo || '').toLowerCase()) &&
+    t.displayName.toLowerCase() !== (activeCharacter || '').toLowerCase()
+  );
 
   const categories = [
     'Quest Route',
@@ -152,33 +158,92 @@ export function CreateTaskModal({ activeCharacter, onClose, onCreateTask, user }
             </div>
           </div>
 
-          <div>
+          <div className="relative">
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
                 Assigned Tester (Optional)
               </label>
               {assignedDiscordId && (
-                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                  ✓ Discord ID Linked (<code className="text-emerald-300">{assignedDiscordId}</code>)
+                <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  ✓ Discord ID Linked
                 </span>
               )}
             </div>
-            <input
-              type="text"
-              list="tester-suggestions"
-              placeholder="Select guild member or type character name..."
-              value={assignedTo}
-              onChange={handleSelectTester}
-              className="w-full px-3.5 py-2 bg-[#0d1117] border border-[#30363d] rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-            />
-            <datalist id="tester-suggestions">
-              {activeCharacter && <option value={activeCharacter}>{activeCharacter} (Me)</option>}
-              {testers.map((t) => (
-                <option key={t.displayName} value={t.displayName}>
-                  {t.displayName} ({t.discordId})
-                </option>
-              ))}
-            </datalist>
+
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Select guild member or type character name..."
+                value={assignedTo}
+                onFocus={() => setShowDropdown(true)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setAssignedTo(val);
+                  setShowDropdown(true);
+                  // Check if matching registered tester
+                  const match = filteredTesters.find(t => t.displayName.toLowerCase() === val.toLowerCase());
+                  if (match) {
+                    setAssignedDiscordId(match.discordId || '');
+                  } else if (user && user.displayName?.toLowerCase() === val.toLowerCase()) {
+                    setAssignedDiscordId(user.discordId || '');
+                  } else {
+                    setAssignedDiscordId('');
+                  }
+                }}
+                className="w-full px-3.5 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+
+              {showDropdown && (
+                <div 
+                  className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto divide-y divide-[#21262d]"
+                  onMouseDown={(e) => e.preventDefault()} // prevent input blur on click
+                >
+                  {/* Option for Current User (Me) */}
+                  {activeCharacter && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAssignedTo(activeCharacter);
+                        setAssignedDiscordId(user?.discordId || '');
+                        setShowDropdown(false);
+                      }}
+                      className="w-full px-3.5 py-2 text-left flex items-center justify-between text-xs hover:bg-[#21262d] transition-colors group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <User className="w-3.5 h-3.5 text-indigo-400" />
+                        <span className="text-slate-100 font-medium">{activeCharacter}</span>
+                      </div>
+                      <span className="text-[10px] text-indigo-400 bg-indigo-950/60 border border-indigo-800/40 px-1.5 py-0.5 rounded font-medium">
+                        Assign to Me
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Registered Testers List */}
+                  {filteredTesters.map((t) => (
+                    <button
+                      key={t.displayName}
+                      type="button"
+                      onClick={() => {
+                        setAssignedTo(t.displayName);
+                        setAssignedDiscordId(t.discordId || '');
+                        setShowDropdown(false);
+                      }}
+                      className="w-full px-3.5 py-2 text-left flex items-center justify-between text-xs hover:bg-[#21262d] transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-slate-500" />
+                        <span className="text-slate-200">{t.displayName}</span>
+                      </div>
+                      <span className="text-[10px] text-emerald-400 bg-emerald-950/30 px-1.5 py-0.5 rounded border border-emerald-800/30">
+                        Verified Member
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
