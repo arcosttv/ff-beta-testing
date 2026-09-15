@@ -81,8 +81,8 @@ export function App() {
         const displayName = meta.custom_claims?.global_name || meta.full_name || meta.name || session.user.email?.split('@')[0] || 'Discord Tester';
         const accountHandle = meta.name || meta.user_name || session.user.email?.split('@')[0] || displayName;
         
-        // Extract real numeric Discord User ID from identities or provider ID
-        const realDiscordId = session.user.identities?.[0]?.id || session.user.user_metadata?.sub || session.user.id || '';
+        // Extract real numeric Discord User ID from provider_id, identities, or sub
+        const realDiscordId = session.user.user_metadata?.provider_id || session.user.identities?.[0]?.id || session.user.user_metadata?.sub || '';
 
         const detectedRole = await fetchDiscordGuildRole(session.provider_token, session.user);
 

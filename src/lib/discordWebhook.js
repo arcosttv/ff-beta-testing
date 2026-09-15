@@ -13,12 +13,19 @@ export async function sendDiscordWebhookNotification({ eventType, task, bug, use
 
   const assignedUser = task?.assigned_to || user || '';
   
-  // Format numeric Discord ID mention (<@1234567890>) OR username
+  // Format numeric Discord ID mention (<@1234567890>), role ping, or @here fallback
   let assignedPing = '';
-  if (task?.assigned_discord_id && /^\d+$/.test(task.assigned_discord_id)) {
-    assignedPing = `<@${task.assigned_discord_id}>`;
+  const cleanId = (task?.assigned_discord_id || '').trim();
+
+  if (cleanId && /^\d+$/.test(cleanId)) {
+    assignedPing = `<@${cleanId}>`;
+  } else if (assignedUser && assignedUser.startsWith('<@')) {
+    assignedPing = assignedUser;
+  } else if (assignedUser && /^\d+$/.test(assignedUser.replace(/[<@!&>]/g, ''))) {
+    const rawDigits = assignedUser.replace(/[<@!&>]/g, '');
+    assignedPing = `<@${rawDigits}>`;
   } else if (assignedUser) {
-    assignedPing = assignedUser.startsWith('@') ? assignedUser : `@${assignedUser}`;
+    assignedPing = `**${assignedUser}** (@here)`;
   }
 
   // 1. NEW TASK CREATED & ASSIGNED
