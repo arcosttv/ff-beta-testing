@@ -23,6 +23,46 @@ import {
   hasTrialOrAboveRole
 } from './lib/supabase';
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('App ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#0d1117] text-slate-100 flex items-center justify-center p-6 font-sans text-center">
+          <div className="max-w-md bg-[#161b22] border border-[#30363d] rounded-2xl p-6 space-y-4">
+            <h2 className="text-lg font-bold text-rose-400">Application Error</h2>
+            <p className="text-xs text-slate-400 font-mono bg-[#0d1117] p-3 rounded border border-[#21262d] text-left overflow-x-auto">
+              {this.state.error?.toString()}
+            </p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export function App() {
   const [user, setUser] = useState(() => {
     try {
@@ -246,100 +286,102 @@ export function App() {
   const tasksFailed = tasks.filter((t) => t.status === 'Failed').length;
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[#0d1117] text-slate-100 selection:bg-indigo-500 selection:text-white">
-      
-      {/* Password & Discord Gate Modal */}
-      {!user && (
-        <AuthGateModal onAuthenticate={handleAuthenticate} />
-      )}
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col font-sans bg-[#0d1117] text-slate-100 selection:bg-indigo-500 selection:text-white">
+        
+        {/* Password & Discord Gate Modal */}
+        {!user && (
+          <AuthGateModal onAuthenticate={handleAuthenticate} />
+        )}
 
-      {/* Connection Notice */}
-      <SupabaseSetupNotice />
+        {/* Connection Notice */}
+        <SupabaseSetupNotice />
 
-      {/* Main Navbar Header */}
-      <Navbar
-        user={user}
-        onDisconnectUser={handleDisconnectUser}
-        onToggleOfficerRole={handleToggleOfficerRole}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onOpenCreateModal={() => setIsCreateModalOpen(true)}
-        onOpenImportModal={() => setIsImportModalOpen(true)}
-        onExportCsv={() => exportTasksToCSV(tasks)}
-        tasksOpen={tasksOpen}
-        tasksInProgress={tasksInProgress}
-        tasksFailed={tasksFailed}
-        onRefreshData={handleRefreshData}
-        isRefreshing={isRefreshing}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        showOnlyMyTasks={showOnlyMyTasks}
-        setShowOnlyMyTasks={setShowOnlyMyTasks}
-      />
+        {/* Main Navbar Header */}
+        <Navbar
+          user={user}
+          onDisconnectUser={handleDisconnectUser}
+          onToggleOfficerRole={handleToggleOfficerRole}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onOpenCreateModal={() => setIsCreateModalOpen(true)}
+          onOpenImportModal={() => setIsImportModalOpen(true)}
+          onExportCsv={() => exportTasksToCSV(tasks)}
+          tasksOpen={tasksOpen}
+          tasksInProgress={tasksInProgress}
+          tasksFailed={tasksFailed}
+          onRefreshData={handleRefreshData}
+          isRefreshing={isRefreshing}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          showOnlyMyTasks={showOnlyMyTasks}
+          setShowOnlyMyTasks={setShowOnlyMyTasks}
+        />
 
-      {/* Main View Container */}
-      <main className="flex-1">
-        {viewMode === 'board' ? (
-          <KanbanBoard
-            tasks={displayedTasks}
+        {/* Main View Container */}
+        <main className="flex-1">
+          {viewMode === 'board' ? (
+            <KanbanBoard
+              tasks={displayedTasks}
+              activeCharacter={activeCharacter}
+              selectedCategory={selectedCategory}
+              searchQuery={searchQuery}
+              onSelectTask={(task) => setSelectedTask(task)}
+              onClaimTask={handleClaimTask}
+              onMoveTask={handleUpdateTask}
+              onOpenCreateModal={() => setIsCreateModalOpen(true)}
+            />
+          ) : (
+            <ListView
+              tasks={displayedTasks}
+              activeCharacter={activeCharacter}
+              onSelectTask={(task) => setSelectedTask(task)}
+              selectedCategory={selectedCategory}
+              searchQuery={searchQuery}
+            />
+          )}
+        </main>
+
+        {/* Task Details Modal */}
+        {selectedTask && (
+          <TaskModal
+            task={selectedTask}
             activeCharacter={activeCharacter}
-            selectedCategory={selectedCategory}
-            searchQuery={searchQuery}
-            onSelectTask={(task) => setSelectedTask(task)}
-            onClaimTask={handleClaimTask}
-            onMoveTask={handleUpdateTask}
-            onOpenCreateModal={() => setIsCreateModalOpen(true)}
-          />
-        ) : (
-          <ListView
-            tasks={displayedTasks}
-            activeCharacter={activeCharacter}
-            onSelectTask={(task) => setSelectedTask(task)}
-            selectedCategory={selectedCategory}
-            searchQuery={searchQuery}
+            isOfficer={isOfficer(user)}
+            onClose={() => setSelectedTask(null)}
+            onUpdateTask={handleUpdateTask}
+            onDeleteTask={handleDeleteTask}
+            onAddBug={handleAddBug}
+            onToggleBugStatus={handleToggleBugStatus}
           />
         )}
-      </main>
 
-      {/* Task Details Modal */}
-      {selectedTask && (
-        <TaskModal
-          task={selectedTask}
-          activeCharacter={activeCharacter}
-          isOfficer={isOfficer(user)}
-          onClose={() => setSelectedTask(null)}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-          onAddBug={handleAddBug}
-          onToggleBugStatus={handleToggleBugStatus}
-        />
-      )}
+        {/* Create Task Modal */}
+        {isCreateModalOpen && (
+          <CreateTaskModal
+            activeCharacter={activeCharacter}
+            user={user}
+            onClose={() => setIsCreateModalOpen(false)}
+            onCreateTask={handleCreateTask}
+          />
+        )}
 
-      {/* Create Task Modal */}
-      {isCreateModalOpen && (
-        <CreateTaskModal
-          activeCharacter={activeCharacter}
-          user={user}
-          onClose={() => setIsCreateModalOpen(false)}
-          onCreateTask={handleCreateTask}
-        />
-      )}
+        {/* Import CSV Modal (Officer Only) */}
+        {isImportModalOpen && (
+          <ImportCsvModal
+            onClose={() => setIsImportModalOpen(false)}
+            onMassImportTasks={handleMassImportTasks}
+          />
+        )}
 
-      {/* Import CSV Modal (Officer Only) */}
-      {isImportModalOpen && (
-        <ImportCsvModal
-          onClose={() => setIsImportModalOpen(false)}
-          onMassImportTasks={handleMassImportTasks}
-        />
-      )}
-
-      {/* Footer */}
-      <footer className="border-t border-[#21262d] bg-[#090c10] py-4 px-6 text-center text-xs text-slate-500 font-sans">
-        <p>FF - Beta Testing &bull; Discord Real Numeric ID Pings & Allowed Mentions Active</p>
-      </footer>
-    </div>
+        {/* Footer */}
+        <footer className="border-t border-[#21262d] bg-[#090c10] py-4 px-6 text-center text-xs text-slate-500 font-sans">
+          <p>FF - Beta Testing &bull; Discord Real Numeric ID Pings & Allowed Mentions Active</p>
+        </footer>
+      </div>
+    </ErrorBoundary>
   );
 }
 

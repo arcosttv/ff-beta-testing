@@ -13,10 +13,12 @@ export function TaskModal({
   onAddBug, 
   onToggleBugStatus 
 }) {
-  const [status, setStatus] = useState(task.status);
-  const [assignedTo, setAssignedTo] = useState(task.assigned_to || '');
-  const [feedbackNotes, setFeedbackNotes] = useState(task.feedback_notes || '');
-  const [mediaUrl, setMediaUrl] = useState(task.media_url || '');
+  if (!task) return null;
+
+  const [status, setStatus] = useState(task?.status || 'To Test');
+  const [assignedTo, setAssignedTo] = useState(task?.assigned_to || '');
+  const [feedbackNotes, setFeedbackNotes] = useState(task?.feedback_notes || '');
+  const [mediaUrl, setMediaUrl] = useState(task?.media_url || '');
   const [isSaving, setIsSaving] = useState(false);
 
   const [newBugTitle, setNewBugTitle] = useState('');
@@ -66,13 +68,14 @@ export function TaskModal({
   };
 
   const getEmbedType = (url) => {
-    if (!url) return null;
+    if (!url || typeof url !== 'string') return null;
     if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
     if (url.match(/\.(jpeg|jpg|gif|png|webp)$/i) || url.includes('unsplash.com') || url.includes('imgur.com')) return 'image';
     return 'link';
   };
 
   const getYouTubeEmbedUrl = (url) => {
+    if (!url || typeof url !== 'string') return null;
     let videoId = '';
     if (url.includes('youtu.be/')) {
       videoId = url.split('youtu.be/')[1]?.split('?')[0];
@@ -82,11 +85,12 @@ export function TaskModal({
     return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
   };
 
-  const bugsList = Array.isArray(task?.bugs)
+  const bugsList = (Array.isArray(task?.bugs)
     ? task.bugs
     : typeof task?.bugs === 'string'
-    ? (() => { try { return JSON.parse(task.bugs); } catch(e) { return []; } })()
-    : [];
+    ? (() => { try { const p = JSON.parse(task.bugs); return Array.isArray(p) ? p : []; } catch(e) { return []; } })()
+    : []
+  ).filter(b => b && typeof b === 'object');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#090c10]/85 backdrop-blur-sm animate-fade-in overflow-y-auto">
@@ -99,14 +103,14 @@ export function TaskModal({
           <div>
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className="px-2.5 py-0.5 rounded text-xs font-semibold bg-[#21262d] text-slate-300 border border-[#30363d]">
-                {task.category}
+                {task?.category || 'General'}
               </span>
               <span className="px-2 py-0.5 rounded text-xs font-mono font-medium bg-[#21262d] text-slate-400">
-                Priority: {task.priority}
+                Priority: {task?.priority || 'Normal'}
               </span>
             </div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-100">
-              {task.title}
+              {task?.title || 'Untitled Task'}
             </h2>
           </div>
 
