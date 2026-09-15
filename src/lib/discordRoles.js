@@ -33,11 +33,13 @@ export async function fetchDiscordGuildRole(providerToken, discordUser) {
       const roles = member.roles || [];
       console.warn('Discord Member Roles for', handle, ':', roles); // For easy debugging
 
-      if (roles.includes(OFFICER_ROLE_ID)) {
+      const cleanRoles = roles.map(r => String(r).trim());
+
+      if (cleanRoles.includes(OFFICER_ROLE_ID)) {
         return 'Officer';
       }
       
-      if (roles.includes(TRIAL_ROLE_ID)) {
+      if (cleanRoles.includes(TRIAL_ROLE_ID)) {
         return 'Trial';
       }
       

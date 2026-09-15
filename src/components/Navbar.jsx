@@ -179,7 +179,7 @@ export function Navbar({
                   }`}
                   title={user.realRole === 'Officer' ? "Click to toggle Officer / Tester role permissions" : "Your Discord Role"}
                 >
-                  {user.role || 'Trial'}
+                  {user.realRole === 'Officer' && !userIsOfficer ? 'Trial (Click to Restore Officer)' : (user.role || 'Trial')}
                 </button>
 
                 <button
