@@ -11,8 +11,8 @@ export function AuthGateModal({ onAuthenticate }) {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    if (!passwordInput.trim()) {
-      setPasswordError('Please enter the beta password.');
+    if (passwordInput.trim().toLowerCase() !== 'crabs') {
+      setPasswordError('Incorrect beta password.');
       return;
     }
     setPasswordError('');
@@ -89,10 +89,6 @@ export function AuthGateModal({ onAuthenticate }) {
               Continue
               <ArrowRight className="w-4 h-4" />
             </button>
-
-            <div className="p-3 bg-[#0d1117] border border-[#21262d] rounded-xl text-[11px] text-slate-400 text-center">
-              💡 <span className="text-slate-300 font-medium">Passcode:</span> <code className="text-indigo-300 bg-[#161b22] px-1.5 py-0.5 rounded font-mono">FF2026</code> (or any password)
-            </div>
           </form>
         )}
 

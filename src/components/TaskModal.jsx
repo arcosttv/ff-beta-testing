@@ -6,6 +6,7 @@ import {
 export function TaskModal({ 
   task, 
   activeCharacter, 
+  isOfficer,
   onClose, 
   onUpdateTask, 
   onDeleteTask, 
@@ -353,19 +354,23 @@ export function TaskModal({
 
         {/* Footer */}
         <div className="p-4 border-t border-[#21262d] bg-[#0d1117] flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm('Are you sure you want to delete this test task?')) {
-                onDeleteTask(task.id);
-                onClose();
-              }
-            }}
-            className="px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 transition-colors flex items-center gap-1.5"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete Task
-          </button>
+          {isOfficer ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to delete this test task?')) {
+                  onDeleteTask(task.id);
+                  onClose();
+                }
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 transition-colors flex items-center gap-1.5"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Task
+            </button>
+          ) : (
+            <div />
+          )}
 
           <div className="flex items-center gap-3">
             <button

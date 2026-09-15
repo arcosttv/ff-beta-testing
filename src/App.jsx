@@ -197,6 +197,10 @@ export function App() {
   };
 
   const handleDeleteTask = async (taskId) => {
+    if (!isOfficer(user)) {
+      alert('Permission Denied: Only Officers can delete test tasks.');
+      return;
+    }
     await deleteTask(taskId);
     const freshTasks = await fetchTasks();
     setTasks(freshTasks);
@@ -304,6 +308,7 @@ export function App() {
         <TaskModal
           task={selectedTask}
           activeCharacter={activeCharacter}
+          isOfficer={isOfficer(user)}
           onClose={() => setSelectedTask(null)}
           onUpdateTask={handleUpdateTask}
           onDeleteTask={handleDeleteTask}
